@@ -27,6 +27,7 @@ namespace TwitterCloneApi.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
                 optionsBuilder.UseSqlServer("Server=127.0.0.1\\SQLSAMBA;Database=TwitterClone;User Id=sa;Password=yasak123;MultipleActiveResultSets=true");
             }
         }
@@ -98,6 +99,8 @@ namespace TwitterCloneApi.Models
                     .IsRequired()
                     .HasColumnName("post_content");
 
+                entity.Property(e => e.PostImageUrl).HasColumnName("post_image_url");
+
                 entity.Property(e => e.PostLike).HasColumnName("post_like");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
@@ -151,8 +154,8 @@ namespace TwitterCloneApi.Models
 
                 entity.Property(e => e.Phone)
                     .HasMaxLength(10)
-                    .HasColumnName("phone")
-                    .IsFixedLength(true);
+                    .IsUnicode(false)
+                    .HasColumnName("phone");
 
                 entity.Property(e => e.PhotoUrl)
                     .IsRequired()
