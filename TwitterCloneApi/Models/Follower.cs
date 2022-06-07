@@ -9,9 +9,10 @@ namespace TwitterCloneApi.Models
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public string Followed { get; set; }
+        public int Followed { get; set; }
         public DateTime? Date { get; set; }
 
+        public virtual Post FollowedNavigation { get; set; }
         public virtual User User { get; set; }
     }
 }

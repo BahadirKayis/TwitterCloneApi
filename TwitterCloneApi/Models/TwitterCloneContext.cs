@@ -46,12 +46,15 @@ namespace TwitterCloneApi.Models
                     .HasColumnType("date")
                     .HasColumnName("date");
 
-                entity.Property(e => e.Followed)
-                    .IsRequired()
-                    .HasMaxLength(15)
-                    .HasColumnName("followed");
+                entity.Property(e => e.Followed).HasColumnName("followed");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.HasOne(d => d.FollowedNavigation)
+                    .WithMany(p => p.Followers)
+                    .HasForeignKey(d => d.Followed)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_followers_Posts");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Followers)
