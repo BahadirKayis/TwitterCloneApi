@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TwitterCloneApi.Hubss;
 using TwitterCloneApi.Models;
 
 namespace TwitterCloneApi
@@ -73,6 +74,7 @@ namespace TwitterCloneApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<NewPostHub>("/NewPostHub");
                 endpoints.MapSwagger();
             });
         }
