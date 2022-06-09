@@ -77,7 +77,7 @@ namespace TwitterCloneApi.Controllers
         public async Task<List<string>> PopularTags()
         {
             List<string> returnTags = new List<string>() ;
-            var TagNames = db.Tags.ToList();
+            var TagNames = db.Tags.Take(4).ToList();
             foreach (var item in TagNames)
             {
                 returnTags.Add(item.TagName.ToString());
@@ -91,10 +91,12 @@ namespace TwitterCloneApi.Controllers
         public async Task<List<Post>> PostTags(string tagName)
         {
             List<Post> tagPosts = new List<Post>();
+            
             var tagPostId = db.Tags.Where(x => x.TagName.Contains(tagName)).ToList();
             foreach (var item in tagPostId)
             {
-            tagPosts.Add(item.Post);
+                Post getPost = db.Posts.Where(x => x.Id == item.PostId).FirstOrDefault();
+                tagPosts.Add(getPost);
             }
 
             return tagPosts;

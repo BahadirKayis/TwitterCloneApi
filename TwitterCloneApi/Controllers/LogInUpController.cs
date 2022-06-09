@@ -33,7 +33,7 @@ namespace TwitterCloneApi.Controllers
             newUser.UserName = user_name;
             newUser.UserPassword = user_password;
             newUser.Name = name;
-            newUser.Email= name;
+            newUser.Email= email;
             newUser.Phone = phone;
             newUser.PhotoUrl = photo_url;
             newUser.Date = date;
