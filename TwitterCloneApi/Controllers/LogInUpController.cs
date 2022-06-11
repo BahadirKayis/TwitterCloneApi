@@ -14,7 +14,7 @@ namespace TwitterCloneApi.Controllers
     public class LogInUpController : ControllerBase
     {
          TwitterCloneContext db;
-
+        
         public LogInUpController(TwitterCloneContext _db)
         {
             db =_db ;
@@ -49,19 +49,21 @@ namespace TwitterCloneApi.Controllers
             }
            
         }
+        
         [HttpGet]
         [Route("getUserNameAndEmail")]
         public async Task<List<UsernameEmail>> getUserNameAndEmail() {
             List<UsernameEmail> return_UserNameEmail = new List<UsernameEmail>();
-            UsernameEmail classUserName=new UsernameEmail();
+            UsernameEmail classUserName;
 
             try
             {
-                var userEmail = db.Users.OrderBy(x => x.Id).ToList();
+                var userEmail = db.Users.ToList();
 
                 foreach (var item in userEmail)
             {
-                classUserName.Email = item.Email;
+                    classUserName = new UsernameEmail();
+                    classUserName.Email = item.Email;
                 classUserName.UserName = item.UserName;
                 return_UserNameEmail.Add(classUserName);
                 //classUserName = new UsernameEmail(); Silmesse değerleri boşaltcaz içini ekledikten sonra

@@ -26,7 +26,7 @@ namespace TwitterCloneApi.Controllers
         public async Task<List<User>> Users(int id)
         {
             List<User> returnUser = new List<User>();
-            User user = new User();
+            User user;
             try
             {
 
@@ -41,7 +41,8 @@ namespace TwitterCloneApi.Controllers
 
             foreach (var item in followList)
             {
-                user = db.Users.Where(x => x.Id != item).FirstOrDefault();
+                    user = new User();
+                    user = db.Users.Where(x => x.Id != item).FirstOrDefault();
                 returnUser.Add(user);
             }
             return returnUser;
