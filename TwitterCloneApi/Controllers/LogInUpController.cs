@@ -118,13 +118,13 @@ namespace TwitterCloneApi.Controllers
 
         [HttpGet]
         [Route("getLoginUserName")]
-        public async Task<string> LoginUserName(string userControl)
+        public async Task<User> LoginUserName(string userControl)
         {
             var userInfo = db.Users.Where(x => x.UserName == userControl || x.Email == userControl).FirstOrDefault();
 
             if (userInfo != null)
             {
-                return userInfo.UserPassword;
+                return userInfo;
             }
             else
             {
