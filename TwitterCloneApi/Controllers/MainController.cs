@@ -190,15 +190,29 @@ namespace TwitterCloneApi.Controllers
         [Route("getSearchNotFollow")]
         public async Task<List<User>> getSearchNotFollow(int id)
         {
-            var followedId = db.Followers.Where(x => x.Id == id).ToList();
-          
-            List<User> users = new List<User>();
+
+            var followedId = db.Followers.Where(x => x.UserId == id).ToList();
+            var user = db.Users.Where(x=>x.Id !=id).ToList();
+            List<User> sendUsers = new List<User>();
+            sendUsers.AddRange(user);
             foreach (var item in followedId)
             {
-                var user = db.Users.Where(x => x.Id != item.Followed && x.Id!=id).ToList();
-                users.AddRange(user);
+                foreach (var useritem in user)
+                {
+                    if (item.Followed == useritem.Id)
+                    {
+                       
+                          int index=sendUsers.FindIndex(x => x.Id == useritem.Id);
+
+                            sendUsers.RemoveAt(index);
+                        break;
+                        
+                    }
+                }
+
+                
             }
-            return users;
+            return sendUsers;
         }
 
 
