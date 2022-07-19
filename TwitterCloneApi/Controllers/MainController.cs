@@ -65,7 +65,7 @@ namespace TwitterCloneApi.Controllers
             var followList = db.Followers.Where(x => x.UserId == id).OrderBy(x => x.Date).Take(20).ToList();
             foreach (var item in followList)
             {
-                var posts = db.Posts.Where(x => x.UserId == item.Followed).OrderByDescending(x => x).ToList();
+                var posts = db.Posts.Where(x => x.UserId == item.Followed||x.UserId==id).OrderByDescending(x => x).ToList();
                 foreach (var post in posts)
                 {
                     var user = db.Users.Where(x => x.Id == post.UserId).First();
@@ -77,6 +77,8 @@ namespace TwitterCloneApi.Controllers
                 returnPosts.AddRange(posts);
 
             }
+
+         
             return returnPosts;
         }
         [HttpGet]
@@ -148,19 +150,29 @@ namespace TwitterCloneApi.Controllers
         }
         [HttpGet]
         [Route("postCreatPost")]
-        public async Task<Boolean> CreatePost(int userId, string content, DateTime date, string image_url)
+        public async Task<Boolean> CreatePost(int userId, string content, string image_url)
         {
 
             try
             {
                 Post post = new Post();
-                post.Date = date;
+                post.Date = DateTime.Now;
                 post.PostImageUrl = image_url;
                 post.PostContent = content;
                 post.UserId = userId;
+
                 db.Posts.Add(post);
                 db.SaveChanges();
-                return true;
+                if (await addTag(post.Id, content))
+                {
+                   
+                    return true;
+                 
+                }
+                else {
+                    return false;
+                }
+             
             }
             catch (Exception)
             {
@@ -170,7 +182,47 @@ namespace TwitterCloneApi.Controllers
 
 
         }
+        [HttpGet]
+        [Route("TagsAdd")]
+        public async Task<Boolean> addTag(int postId, string postContent) {
 
+            Tag tag = new Tag();
+            tag.PostId= postId;
+            tag.Date = DateTime.Now;
+
+            try
+            {
+          
+            if (postContent.Contains("#"))
+            {
+                List<string> tagList = postContent.Split(" ").ToList();
+
+
+
+                foreach (var item in tagList)
+                {
+                    if (item.StartsWith("#"))
+                    {
+                        tag.TagName = item.ToString();
+                        db.Tags.Add(tag);
+                         db.SaveChanges();
+
+                  }
+                }
+                    return true;
+
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+
+                return false;
+            }
+        }
         [HttpPost]
         [Route("postLiked")]
         public async Task<int> postLiked(int Id, int count) {
