@@ -14,6 +14,7 @@ namespace TwitterCloneApi.Controllers
     public class LogInUpController : ControllerBase
     {
          TwitterCloneContext db;
+      
         
         public LogInUpController(TwitterCloneContext _db)
         {
@@ -28,7 +29,11 @@ namespace TwitterCloneApi.Controllers
         {
             try
             {
-          
+                var control = db.Users.Where(x => x.UserName.Equals(user_name) || x.Email.Equals(email));
+                if (control!=null)
+                {
+                    return false;
+                }
             User newUser = new User();
             newUser.UserName = user_name;
             newUser.UserPassword = user_password;
