@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TwitterCloneApi.Hubc;
 using TwitterCloneApi.Models;
 
 namespace TwitterCloneApi.Controllers
@@ -14,10 +16,12 @@ namespace TwitterCloneApi.Controllers
     {
         //post oluşturma arama yapma ve takip etme methotları kaldı
         TwitterCloneContext db;
+        private readonly IHubContext<ChatHub>_hubContext;
 
-        public MainController(TwitterCloneContext _db)
+        public MainController(TwitterCloneContext _db, IHubContext< ChatHub> hubContext)
         {
             db = _db;
+            _hubContext = hubContext;
         }
         //idim geldi folowers tablosuna gittim kendi idim olanları bulup followers id leri liste attım sonra user tablosuna gelip o listin içinde olmayan userları gönderdim
         // eğer kimseyi takip etmemişse kendi hariç tüm userlar
@@ -65,7 +69,7 @@ namespace TwitterCloneApi.Controllers
             var followList = db.Followers.Where(x => x.UserId == id).OrderBy(x => x.Date).Take(20).ToList();
             foreach (var item in followList)
             {
-                var posts = db.Posts.Where(x => x.UserId == item.Followed||x.UserId==id).OrderByDescending(x => x).ToList();
+                var posts = db.Posts.Where(x => x.UserId == item.Followed || x.UserId == id).OrderByDescending(x => x).ToList();
                 foreach (var post in posts)
                 {
                     var user = db.Users.Where(x => x.Id == post.UserId).First();
@@ -78,7 +82,7 @@ namespace TwitterCloneApi.Controllers
 
             }
 
-         
+
             return returnPosts;
         }
         [HttpGet]
@@ -163,16 +167,20 @@ namespace TwitterCloneApi.Controllers
 
                 db.Posts.Add(post);
                 db.SaveChanges();
+
                 if (await addTag(post.Id, content))
                 {
-                   
+                    await UpdateKitchen(userId);
+
                     return true;
-                 
+
                 }
                 else {
+                    db.Posts.Remove(post);
+                    db.SaveChanges();
                     return false;
                 }
-             
+
             }
             catch (Exception)
             {
@@ -187,28 +195,28 @@ namespace TwitterCloneApi.Controllers
         public async Task<Boolean> addTag(int postId, string postContent) {
 
             Tag tag = new Tag();
-            tag.PostId= postId;
+            tag.PostId = postId;
             tag.Date = DateTime.Now;
 
             try
             {
-          
-            if (postContent.Contains("#"))
-            {
-                List<string> tagList = postContent.Split(" ").ToList();
 
-
-
-                foreach (var item in tagList)
+                if (postContent.Contains("#"))
                 {
-                    if (item.StartsWith("#"))
-                    {
-                        tag.TagName = item.ToString();
-                        db.Tags.Add(tag);
-                         db.SaveChanges();
+                    List<string> tagList = postContent.Split(" ").ToList();
 
-                  }
-                }
+
+
+                    foreach (var item in tagList)
+                    {
+                        if (item.StartsWith("#"))
+                        {
+                            tag.TagName = item.ToString();
+                            db.Tags.Add(tag);
+                            db.SaveChanges();
+
+                        }
+                    }
                     return true;
 
                 }
@@ -244,7 +252,7 @@ namespace TwitterCloneApi.Controllers
         {
 
             var followedId = db.Followers.Where(x => x.UserId == id).ToList();
-            var user = db.Users.Where(x=>x.Id !=id).ToList();
+            var user = db.Users.Where(x => x.Id != id).ToList();
             List<User> sendUsers = new List<User>();
             sendUsers.AddRange(user);
             foreach (var item in followedId)
@@ -253,21 +261,65 @@ namespace TwitterCloneApi.Controllers
                 {
                     if (item.Followed == useritem.Id)
                     {
-                       
-                          int index=sendUsers.FindIndex(x => x.Id == useritem.Id);
 
-                            sendUsers.RemoveAt(index);
+                        int index = sendUsers.FindIndex(x => x.Id == useritem.Id);
+
+                        sendUsers.RemoveAt(index);
                         break;
-                        
+
                     }
                 }
 
-                
+
             }
             return sendUsers;
         }
 
 
+        [HttpGet]
+        [Route("tweetUpdateKitchen")]
+        public async Task<Boolean> UpdateKitchen(int id)
+        {
+            var imagUrl = db.Users.Where(x => x.Id == id).FirstOrDefault();
 
+            try
+            {
+
+                await _hubContext.Clients.All.SendAsync("newTweet", id, imagUrl.PhotoUrl);
+                
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+
+            }
+
+
+        }
+        [HttpGet]
+        [Route("getfollowList")]
+        public async Task<List<int>>getfollowList (int id){
+            try
+            {
+
+            var followed = db.Followers.Where(x => x.UserId == id).ToList();
+            List<int> followedId = new List<int>();
+            if (followed!=null)
+            {
+                foreach (var item in followed)
+                {
+                    followedId.Add(item.Followed);
+                }
+            }
+                return followedId;
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+           
+        }
     }
 }

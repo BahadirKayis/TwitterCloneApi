@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TwitterCloneApi.HelperClass;
+using TwitterCloneApi.Hubc;
 using TwitterCloneApi.Models;
 
 namespace TwitterCloneApi.Controllers
@@ -14,11 +17,13 @@ namespace TwitterCloneApi.Controllers
     public class LogInUpController : ControllerBase
     {
          TwitterCloneContext db;
-      
-        
+     
+
         public LogInUpController(TwitterCloneContext _db)
         {
             db =_db ;
+
+            
         }
         //kayıt olmak için hesap oluştur butonuna bastıktan sonra getUserNameAndEmail() değerler gelecek direkt,kayıt ola basıncada postSignUp() çalışcak
         //giriş yapmak için,kullanıcı adını girdikten sonra ileri butonuna basınca LoginUserName() çalışcak şifre dönecek mobilde kontrol edeceğim şifreyi 
@@ -136,5 +141,23 @@ namespace TwitterCloneApi.Controllers
                 return null;
             }
         }
+
+        [HttpGet]
+        [Route("getLoginUserNameAndPassword")] 
+        public Boolean loginAuto(string userName,string password)
+        {
+            var signIn = db.Users.Where(x => x.UserName == userName && x.UserPassword == password).FirstOrDefault();
+
+            if (signIn!=null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+    
     }
 }
