@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TwitterCloneApi.HelperClass;
-using TwitterCloneApi.Hubc;
+
 using TwitterCloneApi.Models;
 
 namespace TwitterCloneApi.Controllers
@@ -29,7 +29,7 @@ namespace TwitterCloneApi.Controllers
         //giriş yapmak için,kullanıcı adını girdikten sonra ileri butonuna basınca LoginUserName() çalışcak şifre dönecek mobilde kontrol edeceğim şifreyi 
         //şifremi unuttum forgetpassword() bilgi var ise id dönecek,şifreyi girdikten sonra yeni şifre oluştur butonuna basınca gelen id ve şifre updatePassword() mothoduna gönderilecek
         [HttpPost]
-        [Route("postSignUp")]
+        [Route("signUp")]
         public async Task<Boolean> postSignUp(string user_name, string user_password, string name, string email, string phone, string photo_url, DateTime date) 
         {
             try
@@ -61,7 +61,7 @@ namespace TwitterCloneApi.Controllers
         }
         
         [HttpGet]
-        [Route("getUserNameAndEmail")]
+        [Route("userNameAndEmail")]
         public async Task<List<UsernameEmail>> getUserNameAndEmail() {
             List<UsernameEmail> return_UserNameEmail = new List<UsernameEmail>();
             UsernameEmail classUserName;
@@ -111,7 +111,7 @@ namespace TwitterCloneApi.Controllers
 
         }
         [HttpGet]
-        [Route("getForgetPassword")]
+        [Route("forgetPassword")]
         public async Task<int> forgetpassword(string userControl) 
         {
             var userInfo = db.Users.Where(x => x.UserName == userControl || x.Email==userControl).FirstOrDefault();
@@ -127,7 +127,7 @@ namespace TwitterCloneApi.Controllers
         }
 
         [HttpGet]
-        [Route("getLoginUserName")]
+        [Route("loginUserName")]
         public async Task<User> LoginUserName(string userControl)
         {
             var userInfo = db.Users.Where(x => x.UserName == userControl || x.Email == userControl).FirstOrDefault();
@@ -143,7 +143,7 @@ namespace TwitterCloneApi.Controllers
         }
 
         [HttpGet]
-        [Route("getLoginUserNameAndPassword")] 
+        [Route("loginUserNameAndPassword")] 
         public Boolean loginAuto(string userName,string password)
         {
             var signIn = db.Users.Where(x => x.UserName == userName && x.UserPassword == password).FirstOrDefault();

@@ -74,7 +74,7 @@ namespace TwitterCloneApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<NewPostHub>("/newTweetHub");
+                endpoints.MapHub<NewTweetHub>("/newTweetHub");
                 endpoints.MapSwagger();
             });
         }
