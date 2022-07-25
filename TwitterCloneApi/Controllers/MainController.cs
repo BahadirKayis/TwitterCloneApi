@@ -66,22 +66,36 @@ namespace TwitterCloneApi.Controllers
         public async Task<List<Post>> Posts(int user_id)
         {
             List<Post> returnPosts = new List<Post>();
+            List<Post> convertPost = new List<Post>();
 
             var followList = db.Followers.Where(x => x.UserId == user_id).OrderBy(x => x.Date).Take(20).ToList();
             if (followList!=null && followList.Count()!=0)
             {
                 foreach (var item in followList)
                 {
-                    var posts = db.Posts.Where(x => x.UserId == item.Followed || x.UserId == user_id).OrderByDescending(x => x).ToList();
+                    var posts = db.Posts.Where(x => x.UserId == item.Followed).OrderByDescending(x => x).ToList();
                     foreach (var post in posts)
                     {
+                        
                         var user = db.Users.Where(x => x.Id == post.UserId).First();
                         post.User = user;
 
                     }
                     returnPosts.AddRange(posts);
+              
 
                 }
+                var myTweets = db.Posts.Where(x => x.UserId == user_id).OrderByDescending(x => x).ToList();
+
+                 var users = db.Users.Where(x => x.Id == user_id).FirstOrDefault<User>();
+               
+           
+                returnPosts.AddRange(myTweets);
+
+                convertPost.AddRange(returnPosts.OrderByDescending(x => x.Date));
+                returnPosts.Clear();
+                returnPosts.AddRange(convertPost);
+
             }
             else
             {

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using TwitterCloneApi.Models;
 
-#nullable disable
-
-namespace TwitterCloneApi.Models
+namespace TwitterCloneApi.HelperClass
 {
-    public partial class Post
+    public class Tweets
     {
-        public Post()
+        public Tweets()
         {
             Tags = new HashSet<Tag>();
         }
@@ -18,6 +17,7 @@ namespace TwitterCloneApi.Models
         public string PostImageUrl { get; set; }
         public int? PostLike { get; set; }
         public DateTime? Date { get; set; }
+        public string? dateParse { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<Tag> Tags { get; set; }

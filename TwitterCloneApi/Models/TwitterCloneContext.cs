@@ -28,7 +28,7 @@ namespace TwitterCloneApi.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=127.0.0.1\\SQLSAMBA;Database=TwitterClone;User Id=sa;Password=yasak123;MultipleActiveResultSets=true");
+                optionsBuilder.UseSqlServer("Server=127.0.0.1\\SQLSAMBA;Database=TwitterClone;User Id=sa;Password=yasak123;Persist Security Info=False;Trusted_Connection=True;");
             }
         }
 
@@ -50,17 +50,11 @@ namespace TwitterCloneApi.Models
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
 
-                entity.HasOne(d => d.FollowedNavigation)
-                    .WithMany(p => p.Followers)
-                    .HasForeignKey(d => d.Followed)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_followers_Posts");
-
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Followers)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_followers_Users");
+                    .HasConstraintName("FK_followers_Users1");
             });
 
             modelBuilder.Entity<Message>(entity =>
@@ -80,18 +74,10 @@ namespace TwitterCloneApi.Models
                 entity.Property(e => e.ReceiverUserId).HasColumnName("receiver_user_id");
 
                 entity.Property(e => e.SendUserId).HasColumnName("send_user_id");
-
-                entity.HasOne(d => d.SendUser)
-                    .WithMany(p => p.Messages)
-                    .HasForeignKey(d => d.SendUserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Message_Users");
             });
 
             modelBuilder.Entity<Post>(entity =>
             {
-                entity.HasIndex(e => e.Id, "IX_Posts");
-
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Date)
@@ -112,7 +98,7 @@ namespace TwitterCloneApi.Models
                     .WithMany(p => p.Posts)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Posts_Users");
+                    .HasConstraintName("FK_Posts_Users1");
             });
 
             modelBuilder.Entity<Tag>(entity =>
@@ -136,7 +122,7 @@ namespace TwitterCloneApi.Models
                     .WithMany(p => p.Tags)
                     .HasForeignKey(d => d.PostId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_tags_Posts");
+                    .HasConstraintName("FK_tags_Posts1");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -158,7 +144,8 @@ namespace TwitterCloneApi.Models
                 entity.Property(e => e.Phone)
                     .HasMaxLength(10)
                     .IsUnicode(false)
-                    .HasColumnName("phone");
+                    .HasColumnName("phone")
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.PhotoUrl)
                     .IsRequired()

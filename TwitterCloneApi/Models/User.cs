@@ -10,7 +10,6 @@ namespace TwitterCloneApi.Models
         public User()
         {
             Followers = new HashSet<Follower>();
-            Messages = new HashSet<Message>();
             Posts = new HashSet<Post>();
         }
 
@@ -24,7 +23,6 @@ namespace TwitterCloneApi.Models
         public DateTime? Date { get; set; }
 
         public virtual ICollection<Follower> Followers { get; set; }
-        public virtual ICollection<Message> Messages { get; set; }
         public virtual ICollection<Post> Posts { get; set; }
     }
 }

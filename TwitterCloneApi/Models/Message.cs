@@ -12,7 +12,5 @@ namespace TwitterCloneApi.Models
         public int ReceiverUserId { get; set; }
         public string MessageContent { get; set; }
         public DateTime? Date { get; set; }
-
-        public virtual User SendUser { get; set; }
     }
 }
