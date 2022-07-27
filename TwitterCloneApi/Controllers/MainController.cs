@@ -17,7 +17,7 @@ namespace TwitterCloneApi.Controllers
     {
         //post oluşturma arama yapma ve takip etme methotları kaldı
         TwitterCloneContext db;
-        private readonly IHubContext<NewTweetHub>_hubContext;
+        private readonly IHubContext<NewTweetHub> _hubContext;
 
         public MainController(TwitterCloneContext _db, IHubContext<NewTweetHub> hubContext)
         {
@@ -69,27 +69,27 @@ namespace TwitterCloneApi.Controllers
             List<Post> convertPost = new List<Post>();
 
             var followList = db.Followers.Where(x => x.UserId == user_id).OrderBy(x => x.Date).Take(20).ToList();
-            if (followList!=null && followList.Count()!=0)
+            if (followList != null && followList.Count() != 0)
             {
                 foreach (var item in followList)
                 {
                     var posts = db.Posts.Where(x => x.UserId == item.Followed).OrderByDescending(x => x).ToList();
                     foreach (var post in posts)
                     {
-                        
+
                         var user = db.Users.Where(x => x.Id == post.UserId).First();
                         post.User = user;
 
                     }
                     returnPosts.AddRange(posts);
-              
+
 
                 }
                 var myTweets = db.Posts.Where(x => x.UserId == user_id).OrderByDescending(x => x).ToList();
 
-                 var users = db.Users.Where(x => x.Id == user_id).FirstOrDefault<User>();
-               
-           
+                var users = db.Users.Where(x => x.Id == user_id).FirstOrDefault<User>();
+
+
                 returnPosts.AddRange(myTweets);
 
                 convertPost.AddRange(returnPosts.OrderByDescending(x => x.Date));
@@ -99,7 +99,7 @@ namespace TwitterCloneApi.Controllers
             }
             else
             {
-                var posts = db.Posts.Where(x =>  x.UserId == user_id).OrderByDescending(x => x).ToList();
+                var posts = db.Posts.Where(x => x.UserId == user_id).OrderByDescending(x => x).ToList();
                 foreach (var post in posts)
                 {
                     var user = db.Users.Where(x => x.Id == post.UserId).First();
@@ -110,7 +110,7 @@ namespace TwitterCloneApi.Controllers
 
                 returnPosts.AddRange(posts);
             }
-            
+
 
 
             return returnPosts;
@@ -200,7 +200,7 @@ namespace TwitterCloneApi.Controllers
 
                 if (await addTag(post.Id, content))
                 {
-                    await tweetUpdate(userId);
+                    await tweetUpdate(userId,post);
 
                     return true;
 
@@ -261,20 +261,7 @@ namespace TwitterCloneApi.Controllers
                 return false;
             }
         }
-        [HttpPost]
-        [Route("tweetLiked")]
-        public async Task<int> postLiked(int Id, int count) {
-
-            Post post = new Post();
-
-            post = db.Posts.Where(x => x.Id == Id).FirstOrDefault();
-
-            post.PostLike += count;
-
-            db.SaveChanges();
-            return (int)post.PostLike;
-
-        }
+ 
 
         [HttpGet]
         [Route("searchNotFollow")]
@@ -308,15 +295,56 @@ namespace TwitterCloneApi.Controllers
 
         [HttpGet]
         [Route("tweetNotification")]
-        public async Task<Boolean> tweetUpdate(int id)
+        public async Task<Boolean> tweetUpdate(int id,Post post)
         {
             var imagUrl = db.Users.Where(x => x.Id == id).FirstOrDefault();
 
             try
             {
+                //nt url
+                //like url username name post
+                //ntf url username name post tweetatanıd
+                await _hubContext.Clients.All.SendAsync("newTweet", id.ToString(), imagUrl.PhotoUrl,imagUrl.UserName,imagUrl.Name,post);
 
-                await _hubContext.Clients.All.SendAsync("newTweet", id.ToString(), imagUrl.PhotoUrl);
-                
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+
+            }
+
+
+        }
+        [HttpPost]
+        [Route("tweetLiked")]
+        public async Task<int> postLiked(int likeUserId,int Id, int count)//postId bu
+        {
+
+            Post post = new Post();
+
+            post = db.Posts.Where(x => x.Id == Id).FirstOrDefault();
+
+            post.PostLike += count;
+           await tweetLikedHub(likeUserId, post.UserId, post);
+            db.SaveChanges();
+            return (int)post.PostLike;
+
+        }
+        [HttpGet]
+        [Route("tweetLikedHub")]
+        public async Task<Boolean> tweetLikedHub(int likedid,int userId,Post post)
+        {
+            var imagUrl = db.Users.Where(x => x.Id == likedid).FirstOrDefault();
+            string tsts = userId.ToString();
+            try
+            {
+                //like url username name post
+                //nt url
+                //ntf url username name post tweetatanıd
+               // await _hubContext.Clients.All.SendAsync(tsts, imagUrl.PhotoUrl, imagUrl.UserName,imagUrl.Name, post);
+                await _hubContext.Clients.All.SendAsync(tsts,imagUrl.PhotoUrl,imagUrl.UserName,imagUrl.Name,post);
+
                 return true;
             }
             catch (Exception e)
@@ -329,19 +357,19 @@ namespace TwitterCloneApi.Controllers
         }
         [HttpGet]
         [Route("followedUserIdList")]
-        public async Task<List<int>>getfollowList (int user_id){
+        public async Task<List<int>> getfollowList(int user_id) {
             try
             {
 
-            var followed = db.Followers.Where(x => x.UserId == user_id).ToList();
-            List<int> followedId = new List<int>();
-            if (followed!=null)
-            {
-                foreach (var item in followed)
+                var followed = db.Followers.Where(x => x.UserId == user_id).ToList();
+                List<int> followedId = new List<int>();
+                if (followed != null)
                 {
-                    followedId.Add(item.Followed);
+                    foreach (var item in followed)
+                    {
+                        followedId.Add(item.Followed);
+                    }
                 }
-            }
                 return followedId;
             }
             catch (Exception e)
@@ -349,7 +377,22 @@ namespace TwitterCloneApi.Controllers
 
                 throw e;
             }
-           
+
+        }
+        [HttpGet]
+        [Route("followedCount")]
+        public async Task<int>followedCount(int user_id){
+            var followedCount = db.Followers.Where(x => x.UserId == user_id).ToList();
+    
+            return followedCount.Count();
+}
+        [HttpGet]
+        [Route("followCount")]
+        public async Task<int> followCount(int user_id)
+        {
+            var followedCount = db.Followers.Where(x => x.Followed == user_id).ToList();
+
+            return  followedCount.Count();
         }
     }
 }
