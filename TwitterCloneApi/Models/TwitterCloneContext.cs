@@ -80,9 +80,7 @@ namespace TwitterCloneApi.Models
             {
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Date)
-                    .HasColumnType("date")
-                    .HasColumnName("date");
+                entity.Property(e => e.Date).HasColumnName("date");
 
                 entity.Property(e => e.PostContent)
                     .IsRequired()

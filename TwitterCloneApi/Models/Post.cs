@@ -17,7 +17,7 @@ namespace TwitterCloneApi.Models
         public string PostContent { get; set; }
         public string PostImageUrl { get; set; }
         public int? PostLike { get; set; }
-        public DateTime? Date { get; set; }
+        public string Date { get; set; }
 
         public virtual User User { get; set; }
         public virtual ICollection<Tag> Tags { get; set; }
