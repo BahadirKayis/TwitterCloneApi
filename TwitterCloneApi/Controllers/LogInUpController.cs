@@ -30,11 +30,11 @@ namespace TwitterCloneApi.Controllers
         //şifremi unuttum forgetpassword() bilgi var ise id dönecek,şifreyi girdikten sonra yeni şifre oluştur butonuna basınca gelen id ve şifre updatePassword() mothoduna gönderilecek
         [HttpPost]
         [Route("signUp")]
-        public async Task<Boolean> postSignUp(string user_name, string user_password, string name, string email, string phone, string photo_url, DateTime date) 
+        public async Task<Boolean> postSignUp(string user_name, string user_password, string name, string email, string phone, string photo_url) 
         {
             try
             {
-                var control = db.Users.Where(x => x.UserName.Equals(user_name) || x.Email.Equals(email));
+                var control = db.Users.Where(x => x.UserName.Equals(user_name) || x.Email.Equals(email)).FirstOrDefault();
                 if (control!=null)
                 {
                     return false;
@@ -46,7 +46,7 @@ namespace TwitterCloneApi.Controllers
             newUser.Email= email;
             newUser.Phone = phone;
             newUser.PhotoUrl = photo_url;
-            newUser.Date = date;
+            newUser.Date = DateTime.Now;
             db.Users.Add(newUser);
             db.SaveChanges();
 

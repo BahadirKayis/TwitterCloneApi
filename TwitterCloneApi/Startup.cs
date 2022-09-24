@@ -33,7 +33,8 @@ namespace TwitterCloneApi
             services.AddControllers();
           
 
-            string connectionString = "Data Source=127.0.0.1\\SQLSAMBA; User Id=sa; Password=yasak123;  Database=TwitterClone;" + "MultipleActiveResultSets=True";
+            string connectionString = "Data Source=127.0.0.1; User Id=bahadir; Password=Yasak123;  Database=twitter;" + "MultipleActiveResultSets=True";
+        // string connectionString = "Data Source=127.0.0.1\\SQLSAMBA; User Id=sa; Password=yasak123;  Database=TwitterClone;" + "MultipleActiveResultSets=True";
 
            
 
